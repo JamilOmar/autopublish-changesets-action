@@ -1,0 +1,36 @@
+name: 'Auto Publish Changeset Action'
+description: 'Action to automatically publish a changeset when a PR is merged'
+author: 'JamilOmar'
+
+# Add your action's branding here. This will appear on the GitHub Marketplace.
+branding:
+  icon: 'heart'
+  color: 'red'
+inputs:
+  cwd:
+    description: 'The current working directory'
+    required: false
+  commitMessage:
+    description: 'The commit message to use when committing the changeset'
+    required: false
+    default: 'chore: publish changeset'
+  publishScript:
+    description: 'The script to run to publish the changeset'
+    required: false
+    default: ''
+  versionScript:
+    description: 'The script to run to bump the version'
+    required: false
+    default: ''
+
+# Define your outputs here.
+outputs:
+  hasChangeset:
+    description: 'Indicates if a changeset was found'
+  isPublished:
+    description: 'Indicates if the changeset was published'
+
+
+runs:
+  using: node20
+  main: dist/index.js

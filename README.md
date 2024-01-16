@@ -1,43 +1,37 @@
-# Has Changesets Action
+# Autopublish Changesets Action
 
-[![GitHub Super-Linter](https://github.com/jamilomar/has-changesets-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
-![CI](https://github.com/jamilomar/has-changesets-action/actions/workflows/ci.yml/badge.svg)
-[![Check dist/](https://github.com/jamilomar/has-changesets-action/actions/workflows/check-dist.yml/badge.svg)](https://github.com/jamilomar/has-changesets-action/actions/workflows/check-dist.yml)
-[![CodeQL](https://github.com/jamilomar/has-changesets-action/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/jamilomar/has-changesets-action/actions/workflows/codeql-analysis.yml)
+[![GitHub autopublish-changesets-action](https://github.com/jamilomar/autopublish-changesets-action/actions/workflows/linter.yml/badge.svg)](https://github.com/autopublish-changesets-action/autopublish-changesets-action)
+![CI](https://github.com/jamilomar/autopublish-changesets-action/actions/workflows/ci.yml/badge.svg)
+[![Check dist/](https://github.com/jamilomar/autopublish-changesets-action/actions/workflows/check-dist.yml/badge.svg)](https://github.com/jamilomar/autopublish-changesets-action/actions/workflows/check-dist.yml)
+[![CodeQL](https://github.com/jamilomar/autopublish-changesets-action/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/jamilomar/autopublish-changesets-action/actions/workflows/codeql-analysis.yml)
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
-Helper action to check if a changesets exists in the PR. It is really useful for auto-merge PRs.
+Helper action to auto-publish a changeset.
 
 
 ## Outputs
 The action will provide one output:
 
-hasChangeset - The result from the action indicating if a changeset exists.
+hasChangeset - The result from the action indicating if there was a changeset.
+isPublished - The result from the action indicating if the PR was published successfully to GitHub.
 
 
 ## Usage
-Add the action to your job, and use the value to launch or not a changeset version with changeset publish 
+Add the action to your job and allow auto publish from your changesets in your code.
 ```yaml
 steps:
-  - name: Checks for changesets
-  id: changesets
-  uses: jamilomar/has-changesets-action@v0.0.4
-
-  - name: Release Changesets
-    id: release-changesets
-    if: steps.changesets.outputs.hasChangesets == 'true'
-    run: |
-
-      pnpm release:ci
-      echo "Publishing Changes from Changesets"
-      pnpm changeset version
-      pnpm chageset publish
-      pnpm changeset tag
-      git config user.name 'github-actions[bot]'
-      git config user.email 'github-actions[bot]@users.noreply.github.com'
-      git add .
-      git commit -m 'chore: update versions'
-      git push --follow-tags
+  - name: Autopublish Action
+    id: changesets
+    uses: jamilomar/autopublish-changesets-action@v0.0.1
+    with:
+      # script to be used to publish the pr (changeset version by default)
+      versionScript: changeset version
+      # script to be used to publish the pr (changeset publish by default)
+      publishScript: changeset publish
+      # commit message
+      commitMessage: 'chore: publish changeset'
+      # optional cwd 
+      cwd: ''
           
 ```
 ## License

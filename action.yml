@@ -12,7 +12,7 @@ inputs:
     required: false
   commitMessage:
     description: 'The commit message to use when committing the changeset'
-    required: false
+    required: true
     default: 'chore: publish changeset'
   publishScript:
     description: 'The script to run to publish the changeset'

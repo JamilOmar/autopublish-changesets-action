@@ -77,6 +77,7 @@ export type AutoPublishOptions = {
 
 export type AutoPublishFile = {
   path: string
-  content: string
-  encoding: string
+  content?: string
+  encoding?: string
+  isDeleted?: boolean
 }

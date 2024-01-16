@@ -62515,6 +62515,7 @@ const fs_1 = __nccwpck_require__(7147);
 const path_1 = __nccwpck_require__(1017);
 const exec_1 = __nccwpck_require__(1514);
 const resolve_from_1 = __importDefault(__nccwpck_require__(4417));
+const constants_1 = __nccwpck_require__(9042);
 const readFileAsync = (0, util_1.promisify)(fs_1.readFile);
 async function autoPublish(auth, versionScript, publishScript, options, cwd = process.cwd(), logger = console) {
     logger.debug(`cwd value: ${cwd}`);
@@ -62544,13 +62545,19 @@ async function autoPublish(auth, versionScript, publishScript, options, cwd = pr
             });
             const status = await git.status();
             logger.debug(`git status value: ${JSON.stringify(status)}`);
-            logger.debug(`publishScript: ${publishScript || 'publish'}`);
-            await executer(publishScript, 'publish');
-            const uncommittedFiles = status.not_added.concat(status.modified, status.deleted);
+            const uncommittedFiles = status.not_added.concat(status.modified);
             const files = [];
             for (const file of uncommittedFiles) {
-                const content = (await readFileAsync((0, path_1.join)(cwd, file))).toString();
-                files.push({ path: file, content, encoding: 'utf-8' });
+                const content = (await readFileAsync((0, path_1.join)(cwd, file), { encoding: constants_1.ENCODING })).toString();
+                files.push({
+                    path: file,
+                    content,
+                    encoding: constants_1.ENCODING
+                });
+            }
+            console.log(status.deleted);
+            for (const file of status.deleted) {
+                files.push({ path: file, isDeleted: true });
             }
             const tree = await ghUtils.createTree(options.branch, files);
             logger.debug(`git tree value: ${JSON.stringify(tree)}`);
@@ -62576,6 +62583,18 @@ exports["default"] = autoPublish;
 
 /***/ }),
 
+/***/ 9042:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ENCODING = void 0;
+exports.ENCODING = 'utf-8';
+
+
+/***/ }),
+
 /***/ 7213:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -62584,14 +62603,15 @@ exports["default"] = autoPublish;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GitUtils = void 0;
 const rest_1 = __nccwpck_require__(5375);
+const constants_1 = __nccwpck_require__(9042);
 class GitUtils {
     constructor(auth, context) {
-        this.octokitClient = new rest_1.Octokit({ auth, request: fetch });
+        this.octokitClient = new rest_1.Octokit({ auth });
         this.context = context;
     }
     octokitClient;
     context;
-    async createBlob(content, encoding = 'utf-8') {
+    async createBlob(content, encoding = constants_1.ENCODING) {
         const { data } = await this.octokitClient.git.createBlob({
             owner: this.context.owner,
             repo: this.context.repo,
@@ -62609,12 +62629,16 @@ class GitUtils {
             tree_sha: baseTree
         });
         for (const file of files) {
-            const blobData = await this.createBlob(file.content, file.encoding);
+            let sha = null;
+            if (!file.isDeleted) {
+                const blobData = await this.createBlob(file.content || '', file.encoding);
+                sha = blobData?.sha;
+            }
             tree.push({
                 path: file.path,
                 mode: '100644',
                 type: 'blob',
-                sha: blobData?.sha
+                sha
             });
         }
         const { data } = await this.octokitClient.git.createTree({

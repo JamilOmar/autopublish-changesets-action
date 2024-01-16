@@ -7,17 +7,18 @@ import {
   PushCommitResult,
   TreeResult
 } from './types'
+import { ENCODING } from './constants'
 
 export class GitUtils {
   constructor(auth: string, context: GitUtilsContext) {
-    this.octokitClient = new Octokit({ auth, request: fetch })
+    this.octokitClient = new Octokit({ auth })
     this.context = context
   }
 
   private octokitClient: Octokit
   private context: GitUtilsContext
 
-  async createBlob(content: string, encoding = 'utf-8'): Promise<BlobResult> {
+  async createBlob(content: string, encoding = ENCODING): Promise<BlobResult> {
     const { data } = await this.octokitClient.git.createBlob({
       owner: this.context.owner,
       repo: this.context.repo,
@@ -38,14 +39,22 @@ export class GitUtils {
       tree_sha: baseTree
     })
     for (const file of files) {
-      const blobData = await this.createBlob(file.content, file.encoding)
+      let sha = null
+      if (!file.isDeleted) {
+        const blobData = await this.createBlob(
+          file.content || '',
+          file.encoding
+        )
+        sha = blobData?.sha
+      }
       tree.push({
         path: file.path,
         mode: '100644',
         type: 'blob',
-        sha: blobData?.sha
+        sha
       })
     }
+
     const { data } = await this.octokitClient.git.createTree({
       owner: this.context.owner,
       repo: this.context.repo,

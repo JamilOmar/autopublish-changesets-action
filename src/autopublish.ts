@@ -5,8 +5,14 @@ import { promisify } from 'util'
 import { readFile } from 'fs'
 import { join } from 'path'
 import { exec } from '@actions/exec'
-import { AutoPublishOptions, AutoPublishOutput, Logger } from './types'
+import {
+  AutoPublishFile,
+  AutoPublishOptions,
+  AutoPublishOutput,
+  Logger
+} from './types'
 import resolveFrom from 'resolve-from'
+import { ENCODING } from './constants'
 const readFileAsync = promisify(readFile)
 
 export default async function autoPublish(
@@ -50,16 +56,21 @@ export default async function autoPublish(
       })
       const status = await git.status()
       logger.debug(`git status value: ${JSON.stringify(status)}`)
-      logger.debug(`publishScript: ${publishScript || 'publish'}`)
-      await executer(publishScript, 'publish')
-      const uncommittedFiles = status.not_added.concat(
-        status.modified,
-        status.deleted
-      )
+      const uncommittedFiles = status.not_added.concat(status.modified)
       const files = []
       for (const file of uncommittedFiles) {
-        const content = (await readFileAsync(join(cwd, file))).toString()
-        files.push({ path: file, content, encoding: 'utf-8' })
+        const content = (
+          await readFileAsync(join(cwd, file), { encoding: ENCODING })
+        ).toString()
+        files.push({
+          path: file,
+          content,
+          encoding: ENCODING
+        } as AutoPublishFile)
+      }
+      console.log(status.deleted)
+      for (const file of status.deleted) {
+        files.push({ path: file, isDeleted: true } as AutoPublishFile)
       }
       const tree = await ghUtils.createTree(options.branch, files)
       logger.debug(`git tree value: ${JSON.stringify(tree)}`)

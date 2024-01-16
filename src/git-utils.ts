@@ -1,5 +1,12 @@
 import { Octokit } from '@octokit/rest'
-import {  BlobResult  , CommitResult  , GitUtilsContext , PushCommitResult  , TreeResult } from './types'
+import {
+  AutoPublishFile,
+  BlobResult,
+  CommitResult,
+  GitUtilsContext,
+  PushCommitResult,
+  TreeResult
+} from './types'
 
 export class GitUtils {
   constructor(auth: string, context: GitUtilsContext) {
@@ -10,19 +17,20 @@ export class GitUtils {
   private octokitClient: Octokit
   private context: GitUtilsContext
 
-  public async createBlob(
-    content: string,
-    encoding: string = 'utf-8'
-  ): Promise<BlobResult> {
+  async createBlob(content: string, encoding = 'utf-8'): Promise<BlobResult> {
     const { data } = await this.octokitClient.git.createBlob({
       owner: this.context.owner,
       repo: this.context.repo,
       content,
       encoding
     })
-    return { sha: data.sha, url: data.url }
+    return { sha: data?.sha, url: data?.url }
   }
-  public async createTree(baseTree: string, files: any[]): Promise<TreeResult> {
+  async createTree(
+    baseTree: string,
+    files: AutoPublishFile[]
+  ): Promise<TreeResult> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tree: any = []
     const shaForBaseTree = await this.octokitClient.git.getTree({
       owner: this.context.owner,
@@ -53,8 +61,8 @@ export class GitUtils {
     }
   }
 
-  public async createCommit(
-    message: any,
+  async createCommit(
+    message: string,
     tree: string,
     parents: string[]
   ): Promise<CommitResult> {
@@ -66,19 +74,19 @@ export class GitUtils {
       parents
     })
     return {
-      author: data.author,
-      committer: data.committer,
-      message: data.message,
-      sha: data.sha,
-      url: data.url,
-      tree: data.tree,
-      parents: data.parents
+      author: data?.author,
+      committer: data?.committer,
+      message: data?.message,
+      sha: data?.sha,
+      url: data?.url,
+      tree: data?.tree,
+      parents: data?.parents
     }
   }
 
-  public async pushCommit(
+  async pushCommit(
     commitSha: string,
-    force: boolean = false
+    force = false
   ): Promise<PushCommitResult> {
     const { data } = await this.octokitClient.git.updateRef({
       owner: this.context.owner,
@@ -89,22 +97,20 @@ export class GitUtils {
     })
 
     return {
-      url: data.url,
-      ref: data.ref,
-      object: data.object,
-      node_id: data.node_id
+      url: data?.url,
+      ref: data?.ref,
+      object: data?.object,
+      node_id: data?.node_id
     }
   }
 
-  public async getParentSha(){
-    const {data} = await this.octokitClient.git.getRef(
-        {
-            owner: this.context.owner,
-            repo: this.context.repo,
-            ref: `heads/${this.context.branch}`
-        
-        })
-  
-    return data.object.sha
-}
+  async getParentSha(): Promise<string> {
+    const { data } = await this.octokitClient.git.getRef({
+      owner: this.context.owner,
+      repo: this.context.repo,
+      ref: `heads/${this.context.branch}`
+    })
+
+    return data?.object?.sha || ''
+  }
 }

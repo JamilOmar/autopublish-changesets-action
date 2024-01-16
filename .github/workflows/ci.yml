@@ -58,8 +58,6 @@ jobs:
           commitMessage: 'chore: publish changeset'
 
       - name: Print hasChangesets Output
-        id: output
         run: echo "${{ steps.test-action.outputs.hasChangesets }}"
       - name: Print isPublished Output
-        id: output
         run: echo "${{ steps.test-action.outputs.isPublished }}"

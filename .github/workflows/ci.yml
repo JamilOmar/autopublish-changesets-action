@@ -50,6 +50,10 @@ jobs:
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
+      
+      - name: Install Dependencies
+        id: npm-ci
+        run: npm ci
 
       - name: Test Local Action
         id: test-action

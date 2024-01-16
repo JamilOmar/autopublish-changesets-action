@@ -1,7 +1,7 @@
 import autoPublish from '../src/autopublish'
 import * as core from '@actions/core'
 import { run } from '../src/main'
-jest.mock('../src/autoPublish', () => {
+jest.mock('../src/autopublish', () => {
   const originalModule = jest.requireActual('../src/autopublish')
   return {
     __esModule: true,

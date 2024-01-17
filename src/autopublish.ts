@@ -83,7 +83,7 @@ export default async function autoPublish(
         [parentSha]
       )
       logger.debug(`git commit value: ${JSON.stringify(commit)}`)
-      const pushCommit = await ghUtils.pushCommit(commit.sha)
+      const pushCommit = await ghUtils.pushCommit(commit.sha, true)
       logger.debug(`git push result value: ${JSON.stringify(pushCommit)}`)
 
       logger.debug(`publishScript value: ${publishScript}`)

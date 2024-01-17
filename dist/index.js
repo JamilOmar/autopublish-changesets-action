@@ -62565,7 +62565,7 @@ async function autoPublish(auth, versionScript, publishScript, options, cwd = pr
             logger.debug(`git parentSha value: ${parentSha}`);
             const commit = await ghUtils.createCommit(options.commitMessage, tree.sha, [parentSha]);
             logger.debug(`git commit value: ${JSON.stringify(commit)}`);
-            const pushCommit = await ghUtils.pushCommit(commit.sha);
+            const pushCommit = await ghUtils.pushCommit(commit.sha, true);
             logger.debug(`git push result value: ${JSON.stringify(pushCommit)}`);
             logger.debug(`publishScript value: ${publishScript}`);
             await executer(publishScript, 'publish');

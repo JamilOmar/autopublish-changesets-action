@@ -51,6 +51,25 @@ describe('Main', () => {
         default: jest.fn().mockResolvedValue(true)
       }
     })
+
+    jest.spyOn(core, 'getInput').mockImplementation((name: string) => {
+      switch (name) {
+        case 'publishScript':
+          return 'npm publish'
+        case 'versionScript':
+          return 'npm version'
+        case 'commitMessage':
+          return 'Test commit message'
+        case 'cwd':
+          return '/path/to/directory'
+        default:
+          return ''
+      }
+    })
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    jest.spyOn(core, 'getBooleanInput').mockImplementation((name: string) => {
+      return false
+    })
     await run()
     expect(autoPublish).toHaveBeenCalled()
   })

@@ -22,6 +22,10 @@ inputs:
     description: 'The script to run to bump the version'
     required: false
     default: ''
+  force:
+    description: 'Indicates if the github push should be forced'
+    required: false
+    default: 'false'
 
 # Define your outputs here.
 outputs:

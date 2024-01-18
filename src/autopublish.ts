@@ -28,12 +28,14 @@ export default async function autoPublish(
   const result = { hasChangesets: allowToCommitAndPush, isPublished: false }
   const executer = async (
     script: string,
-    defaultCommand: string
+    defaultCommand?: string
   ): Promise<void> => {
-    if (script) {
+    const hasScript = !!script
+    const hasDefaultCommand = !!defaultCommand
+    if (hasScript) {
       const [command, ...args] = script.split(/\s+/)
       await exec(command, args, { cwd })
-    } else {
+    } else if (hasDefaultCommand) {
       await exec(
         'node',
         [resolveFrom(cwd, '@changesets/cli/bin.js'), defaultCommand],
@@ -83,16 +85,20 @@ export default async function autoPublish(
         [parentSha]
       )
       logger.debug(`git commit value: ${JSON.stringify(commit)}`)
-      const pushCommit = await ghUtils.pushCommit(commit.sha, true)
+      const pushCommit = await ghUtils.pushCommit(commit.sha, options.force)
       logger.debug(`git push result value: ${JSON.stringify(pushCommit)}`)
-
-      logger.debug(`publishScript value: ${publishScript}`)
-      await executer(publishScript, 'publish')
-      result.isPublished = true
+      const hasPublishScript = !!publishScript
+      if (hasPublishScript) {
+        logger.debug(`publishScript value: ${publishScript}`)
+        await executer(publishScript)
+        result.isPublished = true
+      }
     }
     return result
   } catch (error) {
     logger.error(error)
+    result.isPublished = false
+    result.hasChangesets = false
     return result
   }
 }

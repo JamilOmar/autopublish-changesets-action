@@ -73,6 +73,7 @@ export type AutoPublishOptions = {
   repo: string
   branch: string
   commitMessage: string
+  force?: boolean
 }
 
 export type AutoPublishFile = {

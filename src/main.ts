@@ -22,6 +22,7 @@ export async function run(): Promise<void> {
     }
     const publishScript = core.getInput('publishScript')
     const versionScript = core.getInput('versionScript')
+    const force = core.getBooleanInput('force')
 
     const owner = github.context.repo.owner
     const repo = github.context.repo.repo
@@ -36,7 +37,8 @@ export async function run(): Promise<void> {
         owner,
         repo,
         branch,
-        commitMessage
+        commitMessage,
+        force
       },
       process.cwd(),
       core

@@ -62522,11 +62522,13 @@ async function autoPublish(auth, versionScript, publishScript, options, cwd = pr
     const allowToCommitAndPush = await (0, has_changesets_1.default)(cwd);
     const result = { hasChangesets: allowToCommitAndPush, isPublished: false };
     const executer = async (script, defaultCommand) => {
-        if (script) {
+        const hasScript = !!script;
+        const hasDefaultCommand = !!defaultCommand;
+        if (hasScript) {
             const [command, ...args] = script.split(/\s+/);
             await (0, exec_1.exec)(command, args, { cwd });
         }
-        else {
+        else if (hasDefaultCommand) {
             await (0, exec_1.exec)('node', [(0, resolve_from_1.default)(cwd, '@changesets/cli/bin.js'), defaultCommand], {
                 cwd
             });
@@ -62565,16 +62567,21 @@ async function autoPublish(auth, versionScript, publishScript, options, cwd = pr
             logger.debug(`git parentSha value: ${parentSha}`);
             const commit = await ghUtils.createCommit(options.commitMessage, tree.sha, [parentSha]);
             logger.debug(`git commit value: ${JSON.stringify(commit)}`);
-            const pushCommit = await ghUtils.pushCommit(commit.sha, true);
+            const pushCommit = await ghUtils.pushCommit(commit.sha, options.force);
             logger.debug(`git push result value: ${JSON.stringify(pushCommit)}`);
-            logger.debug(`publishScript value: ${publishScript}`);
-            await executer(publishScript, 'publish');
-            result.isPublished = true;
+            const hasPublishScript = !!publishScript;
+            if (hasPublishScript) {
+                logger.debug(`publishScript value: ${publishScript}`);
+                await executer(publishScript);
+                result.isPublished = true;
+            }
         }
         return result;
     }
     catch (error) {
         logger.error(error);
+        result.isPublished = false;
+        result.hasChangesets = false;
         return result;
     }
 }
@@ -62784,6 +62791,7 @@ async function run() {
         }
         const publishScript = core.getInput('publishScript');
         const versionScript = core.getInput('versionScript');
+        const force = core.getBooleanInput('force');
         const owner = github.context.repo.owner;
         const repo = github.context.repo.repo;
         const branch = github.context.ref.replace('refs/heads/', '');
@@ -62792,7 +62800,8 @@ async function run() {
             owner,
             repo,
             branch,
-            commitMessage
+            commitMessage,
+            force
         }, process.cwd(), core);
         core.setOutput('hasChangesets', result?.hasChangesets?.toString());
         core.setOutput('isPublished', result?.isPublished?.toString());

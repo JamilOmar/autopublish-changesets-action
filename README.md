@@ -32,6 +32,8 @@ steps:
       commitMessage: 'chore: publish changeset'
       # optional cwd 
       cwd: ''
+      # optional force, indicates if the github push should be forced
+      force: false
           
 ```
 ## License

@@ -44,8 +44,7 @@ export async function run(): Promise<void> {
       core
     )
 
-    core.setOutput('hasChangesets', result?.hasChangesets?.toString())
-    core.setOutput('isPublished', result?.isPublished?.toString())
+    core.setOutput('hadChangesets', result?.hadChangesets?.toString())
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message)

@@ -8,8 +8,7 @@ export type Logger = {
 }
 
 export type AutoPublishOutput = {
-  hasChangesets: boolean
-  isPublished: boolean
+  hadChangesets: boolean
 }
 export type GitUtilsContext = {
   owner: string

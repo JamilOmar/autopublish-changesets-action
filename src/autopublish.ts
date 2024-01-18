@@ -25,7 +25,7 @@ export default async function autoPublish(
 ): Promise<AutoPublishOutput> {
   logger.debug(`cwd value: ${cwd}`)
   const allowToCommitAndPush = await hasChangesets(cwd)
-  const result = { hasChangesets: allowToCommitAndPush, isPublished: false }
+  const result = { hadChangesets: allowToCommitAndPush }
   const executer = async (
     script: string,
     defaultCommand?: string
@@ -91,14 +91,11 @@ export default async function autoPublish(
       if (hasPublishScript) {
         logger.debug(`publishScript value: ${publishScript}`)
         await executer(publishScript)
-        result.isPublished = true
       }
     }
     return result
   } catch (error) {
     logger.error(error)
-    result.isPublished = false
-    result.hasChangesets = false
-    return result
+    throw error
   }
 }

@@ -29,12 +29,8 @@ inputs:
 
 # Define your outputs here.
 outputs:
-  hasChangeset:
-    description: 'Indicates if a changeset was found'
-  isPublished:
-    description: 'Indicates if the changeset was published'
-
-
+  hadChangeset:
+    description: 'Indicates if a changeset was found during the process'
 runs:
   using: node20
   main: dist/index.js

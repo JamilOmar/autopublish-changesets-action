@@ -62520,7 +62520,7 @@ const readFileAsync = (0, util_1.promisify)(fs_1.readFile);
 async function autoPublish(auth, versionScript, publishScript, options, cwd = process.cwd(), logger = console) {
     logger.debug(`cwd value: ${cwd}`);
     const allowToCommitAndPush = await (0, has_changesets_1.default)(cwd);
-    const result = { hasChangesets: allowToCommitAndPush, isPublished: false };
+    const result = { hadChangesets: allowToCommitAndPush };
     const executer = async (script, defaultCommand) => {
         const hasScript = !!script;
         const hasDefaultCommand = !!defaultCommand;
@@ -62573,16 +62573,13 @@ async function autoPublish(auth, versionScript, publishScript, options, cwd = pr
             if (hasPublishScript) {
                 logger.debug(`publishScript value: ${publishScript}`);
                 await executer(publishScript);
-                result.isPublished = true;
             }
         }
         return result;
     }
     catch (error) {
         logger.error(error);
-        result.isPublished = false;
-        result.hasChangesets = false;
-        return result;
+        throw error;
     }
 }
 exports["default"] = autoPublish;
@@ -62803,8 +62800,7 @@ async function run() {
             commitMessage,
             force
         }, process.cwd(), core);
-        core.setOutput('hasChangesets', result?.hasChangesets?.toString());
-        core.setOutput('isPublished', result?.isPublished?.toString());
+        core.setOutput('hadChangesets', result?.hadChangesets?.toString());
     }
     catch (error) {
         // Fail the workflow run if an error occurs

@@ -12,9 +12,7 @@ Helper action to auto-publish a changeset.
 ## Outputs
 The action will provide one output:
 
-hasChangeset - The result from the action indicating if there was a changeset.
-isPublished - The result from the action indicating if the PR was published successfully to GitHub.
-
+hadChangeset - The result from the action indicating if there was a changeset.
 
 ## Usage
 Add the action to your job and allow auto publish from your changesets in your code.
@@ -26,7 +24,7 @@ steps:
     with:
       # script to be used to publish the pr (changeset version by default)
       versionScript: changeset version
-      # script to be used to publish the pr (changeset publish by default)
+      # script to be used to publish the pr 
       publishScript: changeset publish
       # commit message
       commitMessage: 'chore: publish changeset'

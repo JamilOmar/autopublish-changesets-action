@@ -63,7 +63,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Print hasChangesets Output
-        run: echo "${{ steps.test-action.outputs.hasChangesets }}"
-      - name: Print isPublished Output
-        run: echo "${{ steps.test-action.outputs.isPublished }}"
+      - name: Print hadChangesets Output
+        run: echo "${{ steps.test-action.outputs.hadChangesets }}"

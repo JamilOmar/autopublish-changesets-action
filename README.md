@@ -35,6 +35,25 @@ steps:
           
 ```
 
+
+# Example
+
+
+
+```sh
+ - name: Run Auto Publish
+        id: autopublish
+        uses: jamilomar/autopublish-changesets-action@v0.0.5
+        with:
+          commitMessage: 'chore: publish changeset'
+          publishScript: 'pnpm changeset publish'            
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
+   
+
+```
+
 # Complex Example
 
 You can use the hasChanged output for complex publish actions:

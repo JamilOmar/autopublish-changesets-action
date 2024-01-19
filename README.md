@@ -34,6 +34,54 @@ steps:
       force: false
           
 ```
+
+# Complex Example
+
+You can use the hasChanged output for complex publish actions:
+
+```sh
+ - name: Run Auto Publish
+        id: autopublish
+        uses: jamilomar/autopublish-changesets-action@v0.0.5
+        with:
+          commitMessage: 'chore: publish changeset'            
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
+      - name: Check for changesets
+        id: release-changesets
+        if: steps.autopublish.outputs.hadChangesets == 'true'
+        run: |
+            sed -e "s|'libs\/|'dist/|" pnpm-workspace.yaml > pnpm-new.yaml && mv pnpm-new.yaml pnpm-workspace.yaml
+            pnpm release:ci
+            echo "Modify Workspace File Back"
+            sed -e "s|'dist\/|'libs/|" pnpm-workspace.yaml > pnpm-new.yaml && mv pnpm-new.yaml pnpm-workspace.yaml
+            git pull --rebase --autostash
+            pnpm changeset tag
+            git push --follow-tags
+            echo "Set Version's Output"
+            echo mainApiVersion="" >>$GITHUB_OUTPUT
+            echo mainAppVersion="" >>$GITHUB_OUTPUT
+            pnpm set-versions
+            if [ -f MAIN_API_VERSION ]; then
+              echo "mainApiVersion=$(cat MAIN_API_VERSION)" >> $GITHUB_OUTPUT
+              rm MAIN_API_VERSION
+            else
+              echo mainApiVersion="" >> $GITHUB_OUTPUT
+            fi
+            if [ -f MAIN_APP_VERSION ]; then
+              echo "mainAppVersion=$(cat MAIN_APP_VERSION)" >> $GITHUB_OUTPUT
+              rm MAIN_APP_VERSION
+            else
+              echo mainAppVersion="" >> $GITHUB_OUTPUT
+            fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      mainApiVersion: ${{ steps.release-changesets.outputs.mainApiVersion }}
+      mainAppVersion: ${{ steps.release-changesets.outputs.mainAppVersion }}
+
+```
 ## License
 
 [MIT](./LICENSE)

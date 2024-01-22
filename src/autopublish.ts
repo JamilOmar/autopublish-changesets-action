@@ -1,22 +1,11 @@
 import hasChangesets from './has-changesets'
-import { GitUtils } from './git-utils'
-import { simpleGit } from 'simple-git'
-import { promisify } from 'util'
-import { readFile } from 'fs'
-import { join } from 'path'
 import { exec } from '@actions/exec'
-import {
-  AutoPublishFile,
-  AutoPublishOptions,
-  AutoPublishOutput,
-  Logger
-} from './types'
+import { AutoPublishOptions, AutoPublishOutput, Logger } from './types'
 import resolveFrom from 'resolve-from'
-import { ENCODING } from './constants'
-const readFileAsync = promisify(readFile)
+import { createTokenAuth } from '@octokit/auth-token'
 
 export default async function autoPublish(
-  auth: string,
+  authToken: string,
   versionScript: string,
   publishScript: string,
   options: AutoPublishOptions,
@@ -50,43 +39,28 @@ export default async function autoPublish(
     if (allowToCommitAndPush) {
       logger.debug(`versionScript value: ${versionScript}`)
       await executer(versionScript, 'version')
-      const git = simpleGit(cwd)
-      const ghUtils = new GitUtils(auth, {
-        owner: options.owner,
-        repo: options.repo,
-        branch: options.branch
-      })
-      const status = await git.status()
-      logger.debug(`git status value: ${JSON.stringify(status)}`)
-      const uncommittedFiles = status.not_added.concat(status.modified)
-      const files = []
-      for (const file of uncommittedFiles) {
-        const content = (
-          await readFileAsync(join(cwd, file), { encoding: ENCODING })
-        ).toString()
-        files.push({
-          path: file,
-          content,
-          encoding: ENCODING
-        } as AutoPublishFile)
-      }
-      console.log(status.deleted)
-      for (const file of status.deleted) {
-        files.push({ path: file, isDeleted: true } as AutoPublishFile)
-      }
-      const tree = await ghUtils.createTree(options.branch, files)
-      logger.debug(`git tree value: ${JSON.stringify(tree)}`)
-      const parentSha = await ghUtils.getParentSha()
-      logger.debug(`git parentSha value: ${parentSha}`)
+      logger.debug(`run changeset tag`)
+      await executer('', 'tag')
+      const auth = createTokenAuth(authToken)
+      const { token, tokenType } = await auth()
+      const tokenWithPrefix =
+        tokenType === 'installation' ? `x-access-token:${token}` : token
 
-      const commit = await ghUtils.createCommit(
-        options.commitMessage,
-        tree.sha,
-        [parentSha]
+      const repositoryUrl = `https://${tokenWithPrefix}@github.com/${options.owner}/${options.repo}.git`
+      await exec('git', ['pull', 'origin', options.branch], { cwd })
+      await exec('git', ['add', '.'], { cwd })
+      await exec(
+        'git',
+        ['commit', '-m', options.commitMessage || 'chore: release [skip ci]'],
+        { cwd }
       )
-      logger.debug(`git commit value: ${JSON.stringify(commit)}`)
-      const pushCommit = await ghUtils.pushCommit(commit.sha, options.force)
-      logger.debug(`git push result value: ${JSON.stringify(pushCommit)}`)
+      const args = ['push', repositoryUrl, options.branch, '--follow-tags']
+      if (options.force) {
+        args.push('--force')
+      }
+
+      await exec('git', args, { cwd })
+
       const hasPublishScript = !!publishScript
       if (hasPublishScript) {
         logger.debug(`publishScript value: ${publishScript}`)

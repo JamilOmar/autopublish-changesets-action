@@ -15,57 +15,6 @@ export type GitUtilsContext = {
   repo: string
   branch: string
 }
-export type BlobResult = {
-  sha: string
-  url: string
-}
-export type Tree = {
-  path?: string
-  mode?: string
-  type?: string
-  sha?: string
-  size?: number
-  url?: string
-}
-
-export type TreeResult = {
-  sha: string
-  tree: Tree[]
-  url: string
-  truncated: boolean
-}
-
-export type User = {
-  date: string
-  email: string
-  name: string
-}
-export type Parents = {
-  sha: string
-  url: string
-  html_url: string
-}
-export type CommitResult = {
-  author: User
-  committer: User
-  message: string
-  sha: string
-  url: string
-  tree: Tree
-  parents: Parents[]
-}
-
-export type PushCommitObject = {
-  type: string
-  sha: string
-  url: string
-}
-export type PushCommitResult = {
-  url: string
-  ref: string
-  object: PushCommitObject
-  node_id: string
-}
 
 export type AutoPublishOptions = {
   owner: string

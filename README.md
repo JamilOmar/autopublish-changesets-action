@@ -43,7 +43,7 @@ steps:
 ```sh
  - name: Run Auto Publish
         id: autopublish
-        uses: jamilomar/autopublish-changesets-action@v0.0.6
+        uses: jamilomar/autopublish-changesets-action@v0.0.7
         with:
           commitMessage: 'chore: publish changeset'
           publishScript: 'pnpm changeset publish'            
@@ -61,7 +61,7 @@ You can use the hasChanged output for complex publish actions:
 ```sh
  - name: Run Auto Publish
         id: autopublish
-        uses: jamilomar/autopublish-changesets-action@v0.0.5
+        uses: jamilomar/autopublish-changesets-action@v0.0.7
         with:
           commitMessage: 'chore: publish changeset'            
         env:

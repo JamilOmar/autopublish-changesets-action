@@ -43,7 +43,7 @@ steps:
 ```sh
  - name: Run Auto Publish
         id: autopublish
-        uses: jamilomar/autopublish-changesets-action@v0.0.5
+        uses: jamilomar/autopublish-changesets-action@v0.0.6
         with:
           commitMessage: 'chore: publish changeset'
           publishScript: 'pnpm changeset publish'            
@@ -75,9 +75,6 @@ You can use the hasChanged output for complex publish actions:
             pnpm release:ci
             echo "Modify Workspace File Back"
             sed -e "s|'dist\/|'libs/|" pnpm-workspace.yaml > pnpm-new.yaml && mv pnpm-new.yaml pnpm-workspace.yaml
-            git pull --rebase --autostash
-            pnpm changeset tag
-            git push --follow-tags
             echo "Set Version's Output"
             echo mainApiVersion="" >>$GITHUB_OUTPUT
             echo mainAppVersion="" >>$GITHUB_OUTPUT

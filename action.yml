@@ -23,11 +23,13 @@ inputs:
     required: false
     default: ''
   username:
-    description: 'The user's github username'
+    description: 'The user's github name'
     required: false
+    default: ''
   email:
     description: 'The user's github email'
     required: false
+    default: ''
   force:
     description: 'Indicates if the github push should be forced'
     required: false

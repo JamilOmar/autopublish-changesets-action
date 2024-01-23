@@ -23,11 +23,11 @@ inputs:
     required: false
     default: ''
   username:
-    description: 'The user's github name'
+    description: 'The github name from the user'
     required: false
     default: ''
   email:
-    description: 'The user's github email'
+    description: 'The github email from the user'
     required: false
     default: ''
   force:

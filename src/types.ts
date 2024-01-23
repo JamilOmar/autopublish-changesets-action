@@ -21,6 +21,8 @@ export type AutoPublishOptions = {
   repo: string
   branch: string
   commitMessage: string
+  username?: string
+  email?: string
   force?: boolean
 }
 

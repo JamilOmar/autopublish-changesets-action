@@ -22,6 +22,12 @@ inputs:
     description: 'The script to run to bump the version'
     required: false
     default: ''
+  username:
+    description: 'The user's github username'
+    required: false
+  email:
+    description: 'The user's github email'
+    required: false
   force:
     description: 'Indicates if the github push should be forced'
     required: false

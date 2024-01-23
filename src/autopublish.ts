@@ -47,7 +47,25 @@ export default async function autoPublish(
         tokenType === 'installation' ? `x-access-token:${token}` : token
 
       const repositoryUrl = `https://${tokenWithPrefix}@github.com/${options.owner}/${options.repo}.git`
-      await exec('git', ['pull', 'origin', options.branch], { cwd })
+      await exec(
+        'git',
+        [
+          'config',
+          'user.name',
+          `"${options.username || 'github-actions[bot]'}"`
+        ],
+        { cwd }
+      )
+      await exec(
+        'git',
+        [
+          'config',
+          'user.email',
+          `"${options.email || 'github-actions[bot]@users.noreply.github.com'}"`
+        ],
+        { cwd }
+      )
+      await exec('git', ['pull', repositoryUrl, options.branch], { cwd })
       await exec('git', ['add', '.'], { cwd })
       await exec(
         'git',

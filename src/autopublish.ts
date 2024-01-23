@@ -39,8 +39,7 @@ export default async function autoPublish(
     if (allowToCommitAndPush) {
       logger.debug(`versionScript value: ${versionScript}`)
       await executer(versionScript, 'version')
-      logger.debug(`run changeset tag`)
-      await executer('', 'tag')
+
       const auth = createTokenAuth(authToken)
       const { token, tokenType } = await auth()
       const tokenWithPrefix =
@@ -66,13 +65,21 @@ export default async function autoPublish(
         { cwd }
       )
       await exec('git', ['pull', repositoryUrl, options.branch], { cwd })
+      await exec('git', ['checkout', '--detach'], { cwd })
       await exec('git', ['add', '.'], { cwd })
       await exec(
         'git',
         ['commit', '-m', options.commitMessage || 'chore: release [skip ci]'],
         { cwd }
       )
-      const args = ['push', repositoryUrl, options.branch, '--follow-tags']
+      logger.debug(`run changeset tag`)
+      await executer('', 'tag')
+      const args = [
+        'push',
+        repositoryUrl,
+        `HEAD:refs/heads/${options.branch}`,
+        '--follow-tags'
+      ]
       if (options.force) {
         args.push('--force')
       }

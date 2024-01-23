@@ -56945,8 +56945,6 @@ async function autoPublish(authToken, versionScript, publishScript, options, cwd
         if (allowToCommitAndPush) {
             logger.debug(`versionScript value: ${versionScript}`);
             await executer(versionScript, 'version');
-            logger.debug(`run changeset tag`);
-            await executer('', 'tag');
             const auth = (0, auth_token_1.createTokenAuth)(authToken);
             const { token, tokenType } = await auth();
             const tokenWithPrefix = tokenType === 'installation' ? `x-access-token:${token}` : token;
@@ -56962,9 +56960,17 @@ async function autoPublish(authToken, versionScript, publishScript, options, cwd
                 `"${options.email || 'github-actions[bot]@users.noreply.github.com'}"`
             ], { cwd });
             await (0, exec_1.exec)('git', ['pull', repositoryUrl, options.branch], { cwd });
+            await (0, exec_1.exec)('git', ['checkout', '--detach'], { cwd });
             await (0, exec_1.exec)('git', ['add', '.'], { cwd });
             await (0, exec_1.exec)('git', ['commit', '-m', options.commitMessage || 'chore: release [skip ci]'], { cwd });
-            const args = ['push', repositoryUrl, options.branch, '--follow-tags'];
+            logger.debug(`run changeset tag`);
+            await executer('', 'tag');
+            const args = [
+                'push',
+                repositoryUrl,
+                `HEAD:refs/heads/${options.branch}`,
+                '--follow-tags'
+            ];
             if (options.force) {
                 args.push('--force');
             }

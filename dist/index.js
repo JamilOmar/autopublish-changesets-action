@@ -56969,7 +56969,8 @@ async function autoPublish(authToken, versionScript, publishScript, options, cwd
             const args = [
                 'push',
                 repositoryUrl,
-                `HEAD:refs/heads/${options.branch}`,
+                //`HEAD:refs/heads/${options.branch}`,
+                options.branch,
                 '--follow-tags'
             ];
             if (options.force) {

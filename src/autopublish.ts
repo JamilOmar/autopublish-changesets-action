@@ -77,7 +77,8 @@ export default async function autoPublish(
       const args = [
         'push',
         repositoryUrl,
-        `HEAD:refs/heads/${options.branch}`,
+        //`HEAD:refs/heads/${options.branch}`,
+        options.branch,
         '--follow-tags'
       ]
       if (options.force) {

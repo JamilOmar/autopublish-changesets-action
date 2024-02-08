@@ -2,7 +2,7 @@ import hasChangesets from './has-changesets'
 import { exec } from '@actions/exec'
 import { AutoPublishOptions, AutoPublishOutput, Logger } from './types'
 import resolveFrom from 'resolve-from'
-import { createTokenAuth } from '@octokit/auth-token'
+//import { createTokenAuth } from '@octokit/auth-token'
 
 export default async function autoPublish(
   authToken: string,
@@ -40,12 +40,12 @@ export default async function autoPublish(
       logger.debug(`versionScript value: ${versionScript}`)
       await executer(versionScript, 'version')
 
-      const auth = createTokenAuth(authToken)
-      const { token, tokenType } = await auth()
-      const tokenWithPrefix =
-        tokenType === 'installation' ? `x-access-token:${token}` : token
+      //const auth = createTokenAuth(authToken)
+      //const { token, tokenType } = await auth()
+      //const tokenWithPrefix =
+      //  tokenType === 'installation' ? `x-access-token:${token}` : token
 
-      const repositoryUrl = `https://${tokenWithPrefix}@github.com/${options.owner}/${options.repo}.git`
+      const repositoryUrl = `https://oauth2:${authToken}@github.com/${options.owner}/${options.repo}.git`
       await exec(
         'git',
         [
@@ -64,8 +64,8 @@ export default async function autoPublish(
         ],
         { cwd }
       )
-      await exec('git', ['pull', repositoryUrl, options.branch], { cwd })
-      await exec('git', ['checkout', '--detach'], { cwd })
+      //await exec('git', ['pull', repositoryUrl, options.branch], { cwd })
+      //await exec('git', ['checkout', '--detach'], { cwd })
       await exec('git', ['add', '.'], { cwd })
       await exec(
         'git',

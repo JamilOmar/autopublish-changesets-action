@@ -56922,7 +56922,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const has_changesets_1 = __importDefault(__nccwpck_require__(9238));
 const exec_1 = __nccwpck_require__(1514);
 const resolve_from_1 = __importDefault(__nccwpck_require__(4417));
-const auth_token_1 = __nccwpck_require__(334);
+//import { createTokenAuth } from '@octokit/auth-token'
 async function autoPublish(authToken, versionScript, publishScript, options, cwd = process.cwd(), logger = console) {
     logger.debug(`cwd value: ${cwd}`);
     const allowToCommitAndPush = await (0, has_changesets_1.default)(cwd);
@@ -56945,10 +56945,11 @@ async function autoPublish(authToken, versionScript, publishScript, options, cwd
         if (allowToCommitAndPush) {
             logger.debug(`versionScript value: ${versionScript}`);
             await executer(versionScript, 'version');
-            const auth = (0, auth_token_1.createTokenAuth)(authToken);
-            const { token, tokenType } = await auth();
-            const tokenWithPrefix = tokenType === 'installation' ? `x-access-token:${token}` : token;
-            const repositoryUrl = `https://${tokenWithPrefix}@github.com/${options.owner}/${options.repo}.git`;
+            //const auth = createTokenAuth(authToken)
+            //const { token, tokenType } = await auth()
+            //const tokenWithPrefix =
+            //  tokenType === 'installation' ? `x-access-token:${token}` : token
+            const repositoryUrl = `https://oauth2:${authToken}@github.com/${options.owner}/${options.repo}.git`;
             await (0, exec_1.exec)('git', [
                 'config',
                 'user.name',
@@ -56959,8 +56960,8 @@ async function autoPublish(authToken, versionScript, publishScript, options, cwd
                 'user.email',
                 `"${options.email || 'github-actions[bot]@users.noreply.github.com'}"`
             ], { cwd });
-            await (0, exec_1.exec)('git', ['pull', repositoryUrl, options.branch], { cwd });
-            await (0, exec_1.exec)('git', ['checkout', '--detach'], { cwd });
+            //await exec('git', ['pull', repositoryUrl, options.branch], { cwd })
+            //await exec('git', ['checkout', '--detach'], { cwd })
             await (0, exec_1.exec)('git', ['add', '.'], { cwd });
             await (0, exec_1.exec)('git', ['commit', '-m', options.commitMessage || 'chore: release [skip ci]'], { cwd });
             logger.debug(`run changeset tag`);
